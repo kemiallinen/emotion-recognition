@@ -7,3 +7,9 @@ https://stackoverflow.com/questions/27955604/cascade-forward-neural-network
 https://www.pyimagesearch.com/2016/09/26/a-simple-neural-network-with-python-and-keras/
 
 https://keras.io/layers/core/
+
+matlab params:
+kfold=20
+hidden=10
+maxepochs=50
+cascadeforwardnet / layrecnet
