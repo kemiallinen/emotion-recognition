@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn import svm, tree
-from sklearn.linear_model import SGDClassifier, PassiveAggressiveClassifier
-from sklearn.neighbors import KNeighborsClassifier
-# TODO: https://scikit-learn.org/stable/modules/generated/sklearn.base.ClassifierMixin.html#sklearn.base.ClassifierMixin
-# TODO: https://scikit-learn.org/stable/modules/classes.html
+
+from sklearn import model_selection
+from sklearn.tree import DecisionTreeClassifier as dtc
+from sklearn.svm import SVC as svc
+from sklearn.neighbors import KNeighborsClassifier as knc
+from sklearn.linear_model import SGDClassifier as sgdc
+from sklearn.naive_bayes import GaussianNB as gnbc
+from sklearn.neural_network import MLPClassifier as mlpc
 
 
 def plot_corr_matrices(cm1, cm2):
@@ -41,20 +45,24 @@ y = data_partial['EmoState']
 X = scaler.fit_transform(data_partial.drop('EmoState', axis=1))
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=71)
 
-# SUPPORT VECTOR MACHINES
-clf_svm_svc = svm.SVC()
-clf_svm_nusvc = svm.NuSVC()
-clf_svm_linearsvc = svm.LinearSVC
+models = (('DTC', dtc()), ('SVM', svc(C=10)),
+          ('KNN', knc(n_neighbors=10)), ('SGDC', sgdc()),
+          ('GNBC', gnbc()), ('MLPC', mlpc(max_iter=1000, learning_rate='adaptive')))
+results = []
+names = []
+seed = 13
+scoring = 'accuracy'
 
-# LINEAR MODELS
-# Stochastic Gradient Descent
-# Passive Aggresive Classifier
-clf_sgd = SGDClassifier()
-clf_pac = PassiveAggressiveClassifier()
+for name, model in models:
+    kfold = model_selection.KFold(n_splits=10, random_state=seed, shuffle=True)
+    cv_results = model_selection.cross_val_score(model, X_train, y_train,
+                                                 cv=kfold, scoring=scoring)
+    results.append(cv_results)
+    names.append(name)
+    print('{}: {} ({})'.format(name, round(cv_results.mean(), 2), round(cv_results.std(), 2)))
 
-# DECISION TREES
-clf_tree_dtc = tree.DecisionTreeClassifier()
-clf_tree_etc = tree.ExtraTreeClassifier()
-
-# KNN
-clf_knn = KNeighborsClassifier()
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.boxplot(results)
+ax.set_xticklabels(names)
+plt.show()
