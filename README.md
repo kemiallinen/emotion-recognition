@@ -1,4 +1,6 @@
 # emotion-recognition
+
+/just out of curiosity/
 various approaches for automatic emotion recognition based on dedicated polish speech corpora
 
 1st attempt:
